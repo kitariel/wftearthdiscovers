@@ -1,0 +1,25 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model WtfProduct {
+    id            String   @id @default(cuid())
+    title         String
+    description   String
+    imageUrl      String
+    affiliateLink String
+    tags          String[] // ["eco", "gift", "wtf"]
+    isFeatured    Boolean  @default(false) // for Daily Drop
+    createdAt     DateTime @default(now())
+
+    @@index([isFeatured])
+    @@index([createdAt])
+}
