@@ -3,7 +3,12 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { getBookmarks, removeBookmark, clearBookmarks, type BookmarkedProduct } from "@/lib/bookmarks";
+import {
+  getBookmarks,
+  removeBookmark,
+  clearBookmarks,
+  type BookmarkedProduct,
+} from "@/lib/bookmarks";
 import { BookmarkButton } from "../_components/bookmark-button";
 
 export default function BookmarksPage() {
@@ -32,7 +37,7 @@ export default function BookmarksPage() {
       <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-black mb-2">My Bookmarks</h1>
+            <h1 className="mb-2 text-3xl font-bold text-black">My Bookmarks</h1>
             <p className="text-gray-600">Loading your saved WTF products...</p>
           </div>
           <div className="flex items-center justify-center py-12">
@@ -49,23 +54,22 @@ export default function BookmarksPage() {
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-black mb-2">My Bookmarks</h1>
+            <h1 className="mb-2 text-3xl font-bold text-black">My Bookmarks</h1>
             <p className="text-gray-600">
-              {bookmarks.length === 0 
+              {bookmarks.length === 0
                 ? "No bookmarks yet. Start exploring and save your favorite WTF products!"
-                : `${bookmarks.length} saved WTF product${bookmarks.length === 1 ? '' : 's'}`
-              }
+                : `${bookmarks.length} saved WTF product${bookmarks.length === 1 ? "" : "s"}`}
             </p>
           </div>
-          
+
           <div className="flex gap-4">
-            <Link 
+            <Link
               href="/"
               className="rounded-lg border border-black/20 bg-white px-4 py-2 font-semibold text-black transition-colors duration-300 hover:bg-gray-50"
             >
               ← Back to Home
             </Link>
-            
+
             {bookmarks.length > 0 && (
               <button
                 onClick={handleClearAll}
@@ -82,10 +86,11 @@ export default function BookmarksPage() {
           <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-black/10 bg-gray-50 p-8 text-black">
             <div className="mb-4 text-6xl">📚</div>
             <h2 className="mb-2 text-2xl font-bold">No Bookmarks Yet!</h2>
-            <p className="text-center text-gray-600 mb-6">
-              Start exploring and bookmark your favorite WTF products to see them here.
+            <p className="mb-6 text-center text-gray-600">
+              Start exploring and bookmark your favorite WTF products to see
+              them here.
             </p>
-            <Link 
+            <Link
               href="/"
               className="rounded-lg bg-black px-6 py-3 font-semibold text-white transition-colors duration-300 hover:bg-gray-800"
             >
@@ -94,84 +99,91 @@ export default function BookmarksPage() {
           </div>
         ) : (
           /* Bookmarks Grid */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {bookmarks.map((product) => (
-              <div key={product.id} className="bg-white border border-black/10 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-                {/* Product Image */}
-                <div className="relative h-64 bg-gray-50">
+              <div
+                key={product.id}
+                className="group relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+              >
+                {/* Full Card Image Background */}
+                <div className="relative aspect-[3/4] bg-gray-50">
                   <Image
                     src={product.imageUrl}
                     alt={product.title}
                     fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                   />
-                  
+
+                  {/* Dark overlay for better text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
                   {/* Featured Badge */}
                   {product.isFeatured && (
-                    <div className="absolute top-3 right-3 bg-black text-white text-xs font-semibold px-2 py-1 rounded-full">
-                      ★ Daily WTF
+                    <div className="absolute top-3 right-3 rounded-full bg-black/80 px-2 py-1.5 text-xs font-semibold text-white shadow-md backdrop-blur-sm">
+                      ⭐ Daily WTF
                     </div>
                   )}
-                  
+
                   {/* Bookmark Button */}
                   <div className="absolute top-3 left-3">
-                    <BookmarkButton 
-                      product={product} 
-                      size="sm" 
+                    <BookmarkButton
+                      product={product}
+                      size="sm"
                       variant="filled"
                     />
                   </div>
-                </div>
 
-                {/* Product Info */}
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-black mb-2 line-clamp-2">
-                    {product.title}
-                  </h3>
-                  
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-3">
-                    {product.description}
-                  </p>
-                  
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {product.tags.slice(0, 3).map((tag: string, index: number) => (
-                      <span
-                        key={index}
-                        className="bg-gray-50 text-gray-700 text-xs px-2 py-1 rounded-full border border-black/10"
+                  {/* Floating Content */}
+                  <div className="absolute right-0 bottom-0 left-0 p-4">
+                    <h3 className="mb-3 line-clamp-2 text-lg leading-tight font-bold text-white drop-shadow-lg">
+                      {product.title}
+                    </h3>
+
+                    {/* Tags */}
+                    <div className="mb-3 flex flex-wrap gap-1">
+                      {product.tags
+                        .slice(0, 2)
+                        .map((tag: string, index: number) => (
+                          <span
+                            key={index}
+                            className="rounded-full border border-white/30 bg-white/20 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      {product.tags.length > 2 && (
+                        <span className="self-center text-xs text-white/80">
+                          +{product.tags.length - 2}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Bookmarked Date */}
+                    <p className="mb-4 text-xs text-white/80">
+                      📅 Saved{" "}
+                      {new Date(product.bookmarkedAt).toLocaleDateString()}
+                    </p>
+
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      <a
+                        href={product.affiliateLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 rounded-lg bg-white/90 px-3 py-2.5 text-center text-sm font-semibold text-black backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white"
                       >
-                        #{tag}
-                      </span>
-                    ))}
-                    {product.tags.length > 3 && (
-                      <span className="text-xs text-gray-500">+{product.tags.length - 3}</span>
-                    )}
-                  </div>
-                  
-                  {/* Bookmarked Date */}
-                  <p className="text-xs text-gray-500 mb-3">
-                    Saved {new Date(product.bookmarkedAt).toLocaleDateString()}
-                  </p>
+                        🛒 Check It Out
+                      </a>
 
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <a
-                      href={product.affiliateLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 text-center bg-black text-white text-sm font-semibold py-2 px-3 rounded hover:bg-gray-800 transition-colors duration-300"
-                    >
-                      Buy This WTF
-                    </a>
-                    
-                    <button
-                      onClick={() => handleRemoveBookmark(product.id)}
-                      className="bg-red-600 text-white text-sm font-semibold py-2 px-3 rounded hover:bg-red-700 transition-colors duration-300"
-                      title="Remove bookmark"
-                    >
-                      ✕
-                    </button>
+                      <button
+                        onClick={() => handleRemoveBookmark(product.id)}
+                        className="rounded-lg bg-red-600/90 px-3 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-red-600"
+                        title="Remove bookmark"
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

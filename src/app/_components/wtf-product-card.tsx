@@ -47,88 +47,87 @@ export function WtfProductCard() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
+    <div className="mx-auto max-w-lg relative overflow-hidden rounded-2xl shadow-xl">
       {/* Header */}
-      <div className="bg-gray-50 border-b border-black/5 p-4 text-center">
-        <h1 className="text-xl font-bold text-black">
-          WTF Earth Finds
+      <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/60 to-transparent p-4 text-center">
+        <h1 className="text-xl font-bold text-white drop-shadow-lg">
+          🌍 WTF Earth Finds
         </h1>
       </div>
 
-      {/* Product Image */}
-      <div className="relative h-80 bg-gray-50">
+      {/* Full Card Image Background */}
+      <div className="relative aspect-[3/4] bg-gray-50">
         <Image
           src={displayProduct.imageUrl}
           alt={displayProduct.title}
           fill
           className="object-cover"
-          sizes="(max-width: 768px) 100vw, 600px"
+          sizes="(max-width: 768px) 100vw, 500px"
         />
+
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
         {/* Featured Badge */}
         {displayProduct.isFeatured && (
-          <div className="absolute top-4 right-4 rounded-full bg-black px-3 py-1 text-sm font-semibold text-white shadow-sm">
-            Daily WTF
+          <div className="absolute top-20 right-4 rounded-full bg-black/80 backdrop-blur-sm px-3 py-1.5 text-sm font-semibold text-white shadow-md">
+            ⭐ Daily WTF
           </div>
         )}
-      </div>
 
-      {/* Product Info */}
-      <div className="p-6 text-black">
-        <h2 className="mb-3 text-2xl font-bold text-black">
-          {displayProduct.title}
-        </h2>
-
-        <p className="mb-4 text-lg leading-relaxed text-gray-700">
-          {displayProduct.description}
-        </p>
-
-        {/* Tags */}
-        <div className="mb-6 flex flex-wrap gap-2">
-          {displayProduct.tags.map((tag: string, index: number) => (
-            <span
-              key={index}
-              className="rounded-full border border-black/10 bg-gray-50 px-3 py-1 text-sm font-medium text-gray-700"
-            >
-              #{tag}
-            </span>
-          ))}
+        {/* Bookmark Button */}
+        <div className="absolute top-20 left-4">
+          <BookmarkButton 
+            product={displayProduct} 
+            size="lg" 
+            variant="filled"
+          />
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col gap-4">
-          <div className="flex gap-4">
+        {/* Floating Content */}
+        <div className="absolute bottom-0 left-0 right-0 p-6">
+          <h2 className="mb-4 text-2xl font-bold text-white leading-tight drop-shadow-lg">
+            {displayProduct.title}
+          </h2>
+
+          {/* Tags */}
+          <div className="mb-6 flex flex-wrap gap-2">
+            {displayProduct.tags.map((tag: string, index: number) => (
+              <span
+                key={index}
+                className="rounded-full bg-white/20 backdrop-blur-sm px-3 py-1 text-sm font-medium text-white border border-white/30"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-3">
             <a
               href={displayProduct.affiliateLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 rounded-lg bg-black px-6 py-4 text-center font-semibold text-white transition-colors duration-300 hover:bg-gray-800"
+              className="w-full rounded-lg bg-white/90 backdrop-blur-sm px-6 py-3 text-center font-semibold text-black transition-all duration-300 hover:bg-white hover:scale-105"
             >
-              Buy This WTF Thing
+              🛒 Buy This WTF Thing
             </a>
             
-            <BookmarkButton 
-              product={displayProduct} 
-              size="lg" 
-              variant="outline"
-              className="shrink-0"
-            />
+            <button
+              onClick={handleShowAnother}
+              disabled={isLoading}
+              className="w-full rounded-lg border-2 border-white/30 bg-white/20 backdrop-blur-sm px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-white/30 disabled:bg-white/10 disabled:text-white/50"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white"></div>
+                  Loading...
+                </span>
+              ) : (
+                "🎲 Show Another WTF"
+              )}
+            </button>
           </div>
-          
-          <button
-            onClick={handleShowAnother}
-            disabled={isLoading}
-            className="w-full rounded-lg border border-black/20 bg-white px-6 py-4 font-semibold text-black transition-colors duration-300 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-500"
-          >
-            {isLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-400 border-t-transparent"></div>
-                Loading...
-              </span>
-            ) : (
-              "Show Another WTF"
-            )}
-          </button>
         </div>
       </div>
     </div>
