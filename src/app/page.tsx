@@ -196,7 +196,7 @@ export default async function Home() {
               {/* Footer Links */}
               <div className="mb-8 flex flex-wrap justify-center gap-6 text-sm">
                 <a
-                  href="#"
+                  href="/contact"
                   className="text-gray-600 transition-colors hover:text-black"
                 >
                   Contact Us
