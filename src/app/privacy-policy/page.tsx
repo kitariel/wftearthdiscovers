@@ -18,7 +18,7 @@ export default function PrivacyPolicy() {
               Introduction
             </h2>
             <p className="mb-4 text-gray-700 leading-relaxed">
-              Welcome to WTF Earth Finds (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your privacy and being transparent about how we collect, use, and share your information. This Privacy Policy explains our practices regarding your personal information when you visit our website.
+              Welcome to WTF Earth Discovers (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your privacy and being transparent about how we collect, use, and share your information. This Privacy Policy explains our practices regarding your personal information when you visit our website.
             </p>
           </section>
           
@@ -375,7 +375,7 @@ export default function PrivacyPolicy() {
               How to Exercise Your Rights
             </h3>
             <p className="mb-6 text-gray-700 leading-relaxed">
-              To exercise these rights, please contact us at contact@wtfearthfinds.com. We will respond to your request within a reasonable timeframe as required by applicable law.
+              To exercise these rights, please contact us at contact@wtfearthdiscovers.com. We will respond to your request within a reasonable timeframe as required by applicable law.
             </p>
           </section>
           
@@ -536,8 +536,8 @@ export default function PrivacyPolicy() {
             
             <div className="bg-gray-50 rounded-lg p-4">
               <p className="text-gray-700">
-                <strong>Email:</strong> contact@wtfearthfinds.com<br />
-                <strong>Website:</strong> WTF Earth Finds
+                <strong>Email:</strong> contact@wtfearthdiscovers.com<br />
+                <strong>Website:</strong> WTF Earth Discovers
               </p>
             </div>
           </section>

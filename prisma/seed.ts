@@ -166,7 +166,7 @@ const sampleProducts = [
 ];
 
 async function main() {
-  console.log('🌍 Seeding WTF Earth Finds database...');
+  console.log('🌍 Seeding WTF Earth Discovers database...');
   
   for (const product of sampleProducts) {
     await prisma.wtfProduct.create({

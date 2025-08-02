@@ -51,7 +51,7 @@ export function WtfProductCard() {
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/60 to-transparent p-4 text-center">
         <h1 className="text-xl font-bold text-white drop-shadow-lg">
-          🌍 WTF Earth Finds
+          🌍 WTF Earth Discovers
         </h1>
       </div>
 

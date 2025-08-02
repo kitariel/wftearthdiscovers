@@ -94,7 +94,7 @@ export default function Contact() {
                 
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <p className="text-sm text-yellow-800">
-                    📧 <strong>Note:</strong> The contact form is not yet functional. For now, please email us directly at <a href="mailto:contact@wtfearthfinds.com" className="font-medium underline">contact@wtfearthfinds.com</a>
+                    📧 <strong>Note:</strong> The contact form is not yet functional. For now, please email us directly at <a href="mailto:contact@wtfearthdiscovers.com" className="font-medium underline">contact@wtfearthdiscovers.com</a>
                   </p>
                 </div>
                 
@@ -119,10 +119,10 @@ export default function Contact() {
                     For general inquiries and support:
                   </p>
                   <a
-                    href="mailto:contact@wtfearthfinds.com"
+                    href="mailto:contact@wtfearthdiscovers.com"
                     className="text-black font-medium hover:underline"
                   >
-                    contact@wtfearthfinds.com
+                    contact@wtfearthdiscovers.com
                   </a>
                 </div>
                 

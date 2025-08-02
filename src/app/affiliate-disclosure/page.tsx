@@ -34,8 +34,26 @@ export default function AffiliateDisclosure() {
               Amazon Associates Program
             </h3>
             <p className="mb-4 text-gray-700 leading-relaxed">
-              We are a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for us to earn fees by linking to Amazon.com and affiliated sites.
+              We are a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for us to earn fees by linking to Amazon.com and affiliated sites. This includes:
             </p>
+            <ul className="mb-4 space-y-2 text-gray-700">
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
+                <strong>Physical Products:</strong> Items available for purchase on Amazon.com
+              </li>
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
+                <strong>Digital Content:</strong> Movies, TV shows, music, books, and apps available through Amazon&apos;s digital platforms
+              </li>
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
+                <strong>Amazon Prime Video:</strong> Movie rentals, purchases, and Prime Video subscriptions
+              </li>
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
+                <strong>Amazon Services:</strong> Prime memberships, Kindle Unlimited, and other Amazon subscription services
+              </li>
+            </ul>
             
             <h3 className="mb-3 text-xl font-semibold text-black">
               Other Affiliate Programs
@@ -132,6 +150,14 @@ export default function AffiliateDisclosure() {
               </li>
               <li className="flex items-start">
                 <span className="mr-2">•</span>
+                Movie and TV show recommendations
+              </li>
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
+                Digital content reviews (books, apps, games)
+              </li>
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
                 Social media posts
               </li>
               <li className="flex items-start">
@@ -176,7 +202,7 @@ export default function AffiliateDisclosure() {
             </p>
             <div className="mb-4 rounded-lg bg-gray-50 p-4">
               <p className="mb-2 text-gray-700">
-                <strong>Email:</strong> contact@wtfearthfinds.com
+                <strong>Email:</strong> contact@wtfearthdiscovers.com
               </p>
               <p className="text-gray-700">
                 <strong>Contact Page:</strong> <a href="/contact" className="text-blue-600 hover:text-blue-800 underline">Contact Us</a>

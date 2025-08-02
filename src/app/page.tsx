@@ -131,19 +131,19 @@ export default async function Home() {
               <div className="mb-6 flex items-center justify-center gap-2">
                 <div className="text-2xl">🌱</div>
                 <h3 className="text-xl font-bold text-black">
-                  WTF EARTH FINDS
+                  WTF EARTH DISCOVERS
                 </h3>
               </div>
 
               {/* Copyright */}
               <p className="mb-6 text-sm text-gray-600">
-                © 2025 WTF Earth Finds. All rights reserved.
+                © 2025 WTF Earth Discovers. All rights reserved.
               </p>
 
               {/* Social Links */}
               <div className="mb-8 flex justify-center gap-4">
                 <a
-                  href="https://www.facebook.com/wtfearthfinds"
+                  href="https://www.facebook.com/wtfearthdiscovers"
                   className="text-gray-600 transition-colors hover:text-black"
                 >
                   <svg
@@ -180,7 +180,7 @@ export default async function Home() {
                   </svg>
                 </a>
                 <a
-                  href="https://www.youtube.com/@WTFEarthFinds"
+                  href="https://www.youtube.com/@WTFEarthDiscovers"
                   className="text-gray-600 transition-colors hover:text-black"
                 >
                   <svg
@@ -224,9 +224,9 @@ export default async function Home() {
               {/* Affiliate Disclosure */}
               <div className="mx-auto max-w-4xl text-xs leading-relaxed text-gray-500">
                 <p className="mb-2">
-                  WTF Earth Finds is reader supported, some products displayed
+                  WTF Earth Discovers is reader supported, some products displayed
                   may earn us a commission if you purchase through our links.
-                  WTF Earth Finds is a participant in the Amazon Services LLC
+                  WTF Earth Discovers is a participant in the Amazon Services LLC
                   Associates Program.
                   <a
                     href="#"
