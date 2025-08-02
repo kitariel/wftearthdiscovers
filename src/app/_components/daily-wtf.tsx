@@ -50,8 +50,7 @@ export function DailyWtf() {
           <>
             {/* Background Image */}
             <Image
-              // src={featuredProduct.imageUrl}
-              src={"https://amzn.to/3Ud93PI"}
+              src={featuredProduct.imageUrl}
               alt={featuredProduct.title}
               fill
               className="object-cover"

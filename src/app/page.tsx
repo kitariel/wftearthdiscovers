@@ -202,13 +202,13 @@ export default async function Home() {
                   Contact Us
                 </a>
                 <a
-                  href="#"
+                  href="/privacy-policy"
                   className="text-gray-600 transition-colors hover:text-black"
                 >
                   Privacy Policy
                 </a>
                 <a
-                  href="#"
+                  href="/affiliate-disclosure"
                   className="text-gray-600 transition-colors hover:text-black"
                 >
                   Affiliate Disclosure
