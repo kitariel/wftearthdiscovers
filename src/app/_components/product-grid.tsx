@@ -15,22 +15,24 @@ type WtfProduct = NonNullable<RouterOutputs["wtfProduct"]["getRandom"]>;
 function ProductCard({ product }: { product: WtfProduct }) {
   return (
     <div className="group relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
-      <div className="relative aspect-[3/4] bg-gray-50">
+      <div className="relative aspect-[4/4] bg-gray-50">
         <Image
-          src={product.imageUrl}
+          src={product.imageUrl || ""}
           alt={product.title}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+          objectFit="cover"
+          className="h-full w-full transition-transform duration-300 group-hover:scale-105"
+          // sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+          height={300}
+          width={300}
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
 
-        {product.isFeatured && (
+        {/* {product.isFeatured && (
           <div className="absolute top-3 right-3 rounded-full bg-black/80 px-2 py-1 text-xs font-semibold text-white shadow-md backdrop-blur-sm">
             ⭐
           </div>
-        )}
+        )} */}
 
         <div className="absolute top-3 left-3">
           <BookmarkButton product={product} size="sm" variant="filled" />
@@ -212,7 +214,7 @@ export function ProductGrid() {
           // FIXED: Add scrollThreshold to trigger loading earlier
           scrollThreshold={0.8}
         >
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {displayedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

@@ -7,8 +7,9 @@ import { TRPCReactProvider } from "@/trpc/react";
 
 export const metadata: Metadata = {
   title: "WTF Earth Discovers - Weird Products from Our Planet",
-  description: "Discover the weirdest, funniest, and most bizarre products Earth has to offer. Daily WTF finds with affiliate links!",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  description:
+    "Discover the weirdest, funniest, and most bizarre products Earth has to offer. Daily WTF finds with affiliate links!",
+  icons: [{ rel: "icon", url: "/meme2.jpg" }],
 };
 
 const geist = Geist({

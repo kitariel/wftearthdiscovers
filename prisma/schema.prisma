@@ -18,8 +18,11 @@ model WtfProduct {
     affiliateLink String
     tags          String[] // ["eco", "gift", "wtf"]
     isFeatured    Boolean  @default(false) // for Daily Drop
+    platformType  String // Amazon , Etsy
     createdAt     DateTime @default(now())
 
+    @@index([title])
     @@index([isFeatured])
+    @@index([tags])
     @@index([createdAt])
 }
