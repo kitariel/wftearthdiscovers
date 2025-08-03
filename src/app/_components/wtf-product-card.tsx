@@ -47,9 +47,9 @@ export function WtfProductCard() {
   }
 
   return (
-    <div className="relative mx-auto max-w-lg overflow-hidden rounded-2xl shadow-xl">
+    <div className="mx-auto max-w-lg relative overflow-hidden rounded-2xl shadow-xl">
       {/* Header */}
-      <div className="absolute top-0 right-0 left-0 z-10 bg-gradient-to-b from-black/60 to-transparent p-4 text-center">
+      <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/60 to-transparent p-4 text-center">
         <h1 className="text-xl font-bold text-white drop-shadow-lg">
           🌍 WTF Earth Discovers
         </h1>
@@ -70,19 +70,23 @@ export function WtfProductCard() {
 
         {/* Featured Badge */}
         {displayProduct.isFeatured && (
-          <div className="absolute top-20 right-4 rounded-full bg-black/80 px-3 py-1.5 text-sm font-semibold text-white shadow-md backdrop-blur-sm">
+          <div className="absolute top-20 right-4 rounded-full bg-black/80 backdrop-blur-sm px-3 py-1.5 text-sm font-semibold text-white shadow-md">
             ⭐ Daily WTF
           </div>
         )}
 
         {/* Bookmark Button */}
         <div className="absolute top-20 left-4">
-          <BookmarkButton product={displayProduct} size="lg" variant="filled" />
+          <BookmarkButton 
+            product={displayProduct} 
+            size="lg" 
+            variant="filled"
+          />
         </div>
 
         {/* Floating Content */}
-        <div className="absolute right-0 bottom-0 left-0 p-6">
-          <h2 className="mb-4 text-2xl leading-tight font-bold text-white drop-shadow-lg">
+        <div className="absolute bottom-0 left-0 right-0 p-6">
+          <h2 className="mb-4 text-2xl font-bold text-white leading-tight drop-shadow-lg">
             {displayProduct.title}
           </h2>
 
@@ -91,7 +95,7 @@ export function WtfProductCard() {
             {displayProduct.tags.map((tag: string, index: number) => (
               <span
                 key={index}
-                className="rounded-full border border-white/30 bg-white/20 px-3 py-1 text-sm font-medium text-white backdrop-blur-sm"
+                className="rounded-full bg-white/20 backdrop-blur-sm px-3 py-1 text-sm font-medium text-white border border-white/30"
               >
                 #{tag}
               </span>
@@ -104,15 +108,15 @@ export function WtfProductCard() {
               href={displayProduct.affiliateLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full rounded-lg bg-white/90 px-6 py-3 text-center font-semibold text-black backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white"
+              className="w-full rounded-lg bg-white/90 backdrop-blur-sm px-6 py-3 text-center font-semibold text-black transition-all duration-300 hover:bg-white hover:scale-105"
             >
               🛒 Buy This WTF Thing
             </a>
-
+            
             <button
               onClick={handleShowAnother}
               disabled={isLoading}
-              className="w-full rounded-lg border-2 border-white/30 bg-white/20 px-6 py-3 font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/30 disabled:bg-white/10 disabled:text-white/50"
+              className="w-full rounded-lg border-2 border-white/30 bg-white/20 backdrop-blur-sm px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-white/30 disabled:bg-white/10 disabled:text-white/50"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">

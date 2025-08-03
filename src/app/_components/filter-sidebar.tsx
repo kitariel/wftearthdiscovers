@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { Filter, Shuffle } from "lucide-react";
+import { api } from "@/trpc/react";
 
 interface FilterSidebarProps {
   onShuffle: () => void;
@@ -12,19 +13,15 @@ interface FilterSidebarProps {
   selectedCategory: string | null;
 }
 
-const categories = [
-  "All Products",
-  "Weird",
-  "Tech", 
-  "Food",
-  "Kitchen",
-  "Gift",
-  "Funny",
-  "WTF"
-];
-
 export function FilterSidebar({ onShuffle, onCategoryFilter, selectedCategory }: FilterSidebarProps) {
   const [open, setOpen] = React.useState(false);
+  const { data: tags, isLoading: tagsLoading } = api.wtfProduct.getAllTags.useQuery();
+  
+  // Create categories array with "All Products" first, then all unique tags
+  const categories = React.useMemo(() => {
+    if (!tags) return ["All Products"];
+    return ["All Products", ...tags];
+  }, [tags]);
 
   const handleCategoryClick = (category: string) => {
     if (category === "All Products") {
@@ -73,23 +70,29 @@ export function FilterSidebar({ onShuffle, onCategoryFilter, selectedCategory }:
           <div>
             <h3 className="text-sm font-medium mb-3">Categories</h3>
             <div className="space-y-2">
-              {categories.map((category) => {
-                const isSelected = category === "All Products" 
-                  ? selectedCategory === null 
-                  : selectedCategory === category;
-                
-                return (
-                  <Button
-                    key={category}
-                    onClick={() => handleCategoryClick(category)}
-                    variant={isSelected ? "default" : "ghost"}
-                    className="w-full justify-start"
-                    size="sm"
-                  >
-                    {category}
-                  </Button>
-                );
-              })}
+              {tagsLoading ? (
+                <div className="text-center py-4">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent mx-auto"></div>
+                </div>
+              ) : (
+                categories.map((category) => {
+                  const isSelected = category === "All Products" 
+                    ? selectedCategory === null 
+                    : selectedCategory === category;
+                  
+                  return (
+                    <Button
+                      key={category}
+                      onClick={() => handleCategoryClick(category)}
+                      variant={isSelected ? "default" : "ghost"}
+                      className="w-full justify-start"
+                      size="sm"
+                    >
+                      {category}
+                    </Button>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
