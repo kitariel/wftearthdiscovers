@@ -11,8 +11,14 @@ import { Button } from "@/components/ui/button";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { useErrorToast } from "@/components/ui/toast";
-import { ErrorBoundary, GridErrorFallback } from "@/components/ui/error-boundary";
-import { RecommendationsModal, useRecommendationsModal } from "./recommendations-modal";
+import {
+  ErrorBoundary,
+  GridErrorFallback,
+} from "@/components/ui/error-boundary";
+import {
+  RecommendationsModal,
+  useRecommendationsModal,
+} from "./recommendations-modal";
 import { SearchBar } from "./search-bar";
 import { SearchResults } from "./search-results";
 import { Sparkles } from "lucide-react";
@@ -24,12 +30,18 @@ type WtfProduct = NonNullable<RouterOutputs["wtfProduct"]["getRandom"]> & {
 };
 
 // Product Card Component
-function ProductCard({ product, onShowRecommendations }: { product: WtfProduct; onShowRecommendations: (product: WtfProduct) => void }) {
+function ProductCard({
+  product,
+  onShowRecommendations,
+}: {
+  product: WtfProduct;
+  onShowRecommendations: (product: WtfProduct) => void;
+}) {
   const { trackClick } = useClickTracker();
 
   const handleProductClick = async () => {
     await trackClick(product.id);
-    window.open(product.affiliateLink, '_blank');
+    window.open(product.affiliateLink, "_blank");
   };
 
   return (
@@ -50,11 +62,11 @@ function ProductCard({ product, onShowRecommendations }: { product: WtfProduct; 
         {/* Click Counter */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           <BookmarkButton product={product} size="sm" />
-          <ClickCounter clickCount={product.clickCount ?? 0} />
+          <ClickCounter clickCount={product.clickCount || 0} />
         </div>
 
         <div className="absolute top-3 right-3 flex gap-2">
-          <ShareButton 
+          <ShareButton
             title={product.title}
             text={`Check out this amazing product: ${product.title}`}
             url={`${window.location.origin}?product=${product.id}`}
@@ -130,7 +142,8 @@ function ProductGridContent() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isSearchMode, setIsSearchMode] = useState(false);
   const errorToast = useErrorToast();
-  const { isOpen, selectedProduct, openModal, closeModal } = useRecommendationsModal();
+  const { isOpen, selectedProduct, openModal, closeModal } =
+    useRecommendationsModal();
 
   const LIMIT = 6;
 
@@ -139,15 +152,18 @@ function ProductGridContent() {
     isLoading,
     error: apiError,
     refetch,
-  } = api.wtfProduct.getInfiniteScroll.useQuery({
-    limit: LIMIT,
-    offset: currentOffset,
-    seed: seed, // Keep the same seed for consistent ordering
-    ...(selectedCategory && { category: selectedCategory }),
-  }, {
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  });
+  } = api.wtfProduct.getInfiniteScroll.useQuery(
+    {
+      limit: LIMIT,
+      offset: currentOffset,
+      seed: seed, // Keep the same seed for consistent ordering
+      ...(selectedCategory && { category: selectedCategory }),
+    },
+    {
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    },
+  );
 
   // Handle API errors
   useEffect(() => {
@@ -203,14 +219,20 @@ function ProductGridContent() {
     if (hasMore && !isLoadingMore && !isLoading) {
       setIsLoadingMore(true);
       setError(null);
-      
+
       try {
         setCurrentOffset((prev) => prev + LIMIT);
       } catch (error) {
         console.error("Failed to load more products:", error);
-        const errorMessage = error instanceof Error ? error.message : "Failed to load more products";
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to load more products";
         setError(errorMessage);
-        errorToast("Load More Failed", "Couldn't load more products. Please try again.");
+        errorToast(
+          "Load More Failed",
+          "Couldn't load more products. Please try again.",
+        );
         setIsLoadingMore(false);
       }
     }
@@ -260,25 +282,20 @@ function ProductGridContent() {
   // Error state
   if (error && displayedProducts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-        <div className="text-6xl mb-4">⚠️</div>
-        <h2 className="text-2xl font-bold mb-2">Oops! Something went wrong</h2>
-        <p className="text-gray-500 mb-4 max-w-md">
-          {error}
-        </p>
-        <Button 
-           onClick={() => {
-             setError(null);
-             void refetch();
-           }}
-           className="mb-2"
-         >
-           Try Again
-         </Button>
-        <Button 
-          variant="outline" 
-          onClick={loadInitialProducts}
+      <div className="flex min-h-[400px] flex-col items-center justify-center text-center">
+        <div className="mb-4 text-6xl">⚠️</div>
+        <h2 className="mb-2 text-2xl font-bold">Oops! Something went wrong</h2>
+        <p className="mb-4 max-w-md text-gray-500">{error}</p>
+        <Button
+          onClick={() => {
+            setError(null);
+            void refetch();
+          }}
+          className="mb-2"
         >
+          Try Again
+        </Button>
+        <Button variant="outline" onClick={loadInitialProducts}>
           Reset Filters
         </Button>
       </div>
@@ -316,45 +333,47 @@ function ProductGridContent() {
       {/* Conditional rendering: Search Results or Regular Product Grid */}
       {isSearchMode ? (
         <SearchResults
-           query={searchQuery}
-           selectedCategory={selectedCategory ?? undefined}
-         />
+          query={searchQuery}
+          selectedCategory={selectedCategory ?? undefined}
+        />
+      ) : // Regular Product Grid
+      !displayedProducts || displayedProducts.length === 0 ? (
+        <div className="rounded-lg border border-black/10 bg-gray-50 py-8 text-center text-gray-500">
+          <p className="text-lg font-medium text-black">No WTF Products Yet!</p>
+          <p className="text-sm text-gray-500">
+            Add some products using the admin form.
+          </p>
+        </div>
       ) : (
-        // Regular Product Grid
-        !displayedProducts || displayedProducts.length === 0 ? (
-          <div className="rounded-lg border border-black/10 bg-gray-50 py-8 text-center text-gray-500">
-            <p className="text-lg font-medium text-black">No WTF Products Yet!</p>
-            <p className="text-sm text-gray-500">
-              Add some products using the admin form.
-            </p>
-          </div>
-        ) : (
-          // FIXED: Always use infinite scroll, remove mobile-specific logic
-          <InfiniteScroll
-            dataLength={displayedProducts.length}
-            next={loadMoreProducts}
-            hasMore={hasMore}
-            loader={
-              <div className="py-8 text-center">
-                <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-black"></div>
-                <p className="text-gray-500">Loading more products...</p>
-              </div>
-            }
-            endMessage={
-              <div className="py-8 text-center text-gray-500">
-                <p>You&apos;ve seen all the amazing products!</p>
-              </div>
-            }
-            // FIXED: Add scrollThreshold to trigger loading earlier
-            scrollThreshold={0.8}
-          >
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {displayedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} onShowRecommendations={openModal} />
-              ))}
+        // FIXED: Always use infinite scroll, remove mobile-specific logic
+        <InfiniteScroll
+          dataLength={displayedProducts.length}
+          next={loadMoreProducts}
+          hasMore={hasMore}
+          loader={
+            <div className="py-8 text-center">
+              <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-black"></div>
+              <p className="text-gray-500">Loading more products...</p>
             </div>
-          </InfiniteScroll>
-        )
+          }
+          endMessage={
+            <div className="py-8 text-center text-gray-500">
+              <p>You&apos;ve seen all the amazing products!</p>
+            </div>
+          }
+          // FIXED: Add scrollThreshold to trigger loading earlier
+          scrollThreshold={0.8}
+        >
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {displayedProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onShowRecommendations={openModal}
+              />
+            ))}
+          </div>
+        </InfiniteScroll>
       )}
 
       {(!displayedProducts || displayedProducts.length === 0) &&
@@ -366,7 +385,7 @@ function ProductGridContent() {
             </p>
           </div>
         )}
-      
+
       {/* Recommendations Modal */}
       {selectedProduct && (
         <RecommendationsModal

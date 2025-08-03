@@ -253,6 +253,18 @@ export const wtfProductRouter = createTRPCRouter({
             hasSome: sourceProduct.tags,
           },
         },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          imageUrl: true,
+          affiliateLink: true,
+          tags: true,
+          isFeatured: true,
+          platformType: true,
+          createdAt: true,
+          clickCount: true,
+        },
       });
 
       // Score products by number of shared tags and sort
@@ -343,6 +355,18 @@ export const wtfProductRouter = createTRPCRouter({
           orderBy,
           take: limit,
           skip: offset,
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            imageUrl: true,
+            affiliateLink: true,
+            tags: true,
+            isFeatured: true,
+            platformType: true,
+            createdAt: true,
+            clickCount: true,
+          },
         }),
         ctx.db.wtfProduct.count({
           where: searchConditions,
