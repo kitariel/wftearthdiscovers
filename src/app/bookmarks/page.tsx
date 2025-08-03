@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import {
   getBookmarks,
   removeBookmark,
@@ -107,7 +107,7 @@ export default function BookmarksPage() {
               >
                 {/* Full Card Image Background */}
                 <div className="relative aspect-[3/4] bg-gray-50">
-                  <Image
+                  <ImageWithFallback
                     src={product.imageUrl}
                     alt={product.title}
                     fill

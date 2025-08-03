@@ -4,7 +4,7 @@ import { ProductGrid } from "./_components/product-grid";
 import { FloatingShuffleButton } from "./_components/floating-shuffle-button";
 import { FloatingBookmarksButton } from "./_components/floating-bookmarks-button";
 import { api, HydrateClient } from "@/trpc/server";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 export default async function Home() {
   // Prefetch data for better performance
@@ -32,7 +32,7 @@ export default async function Home() {
             <div className="mb-12 flex justify-center">
               <div className="mx-auto max-w-2/12">
                 {/* <div className="text-6xl md:text-7xl">🌱</div> */}
-                <Image
+                <ImageWithFallback
                   src={imagerender ?? ""}
                   alt="WTF Product"
                   width={4}

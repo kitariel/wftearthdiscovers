@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { api, type RouterOutputs } from "@/trpc/react";
 import { BookmarkButton } from "./bookmark-button";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 type WtfProduct = RouterOutputs["wtfProduct"]["getRandom"];
 
@@ -57,7 +57,7 @@ export function WtfProductCard() {
 
       {/* Full Card Image Background */}
       <div className="relative aspect-[3/4] bg-gray-50">
-        <Image
+        <ImageWithFallback
           src={displayProduct.imageUrl}
           alt={displayProduct.title}
           fill

@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { api } from "@/trpc/react";
-import Image from "next/image";
 import type { RouterOutputs } from "@/trpc/react";
 import { FilterSidebar } from "./filter-sidebar";
 import { BookmarkButton } from "./bookmark-button";
 import { Button } from "@/components/ui/button";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 type WtfProduct = NonNullable<RouterOutputs["wtfProduct"]["getRandom"]>;
 
@@ -16,7 +16,7 @@ function ProductCard({ product }: { product: WtfProduct }) {
   return (
     <div className="group relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
       <div className="relative aspect-[4/4] bg-gray-50">
-        <Image
+        <ImageWithFallback
           src={product.imageUrl || ""}
           alt={product.title}
           objectFit="cover"

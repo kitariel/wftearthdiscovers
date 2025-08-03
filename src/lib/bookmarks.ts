@@ -14,6 +14,7 @@ export interface BookmarkedProduct {
   affiliateLink: string;
   tags: string[];
   isFeatured: boolean;
+  platformType: string;
   createdAt: Date;
   bookmarkedAt: string;
 }
@@ -32,13 +33,14 @@ export function getBookmarks(): BookmarkedProduct[] {
 }
 
 // Add a product to bookmarks
-export function addBookmark(product: WtfProduct): void {
+export function addBookmark(product: WtfProduct & { platformType?: string }): void {
   if (typeof window === "undefined") return;
   
   try {
     const bookmarks = getBookmarks();
     const bookmarkedProduct: BookmarkedProduct = {
       ...product,
+      platformType: product.platformType ?? "Amazon",
       bookmarkedAt: new Date().toISOString(),
     };
     

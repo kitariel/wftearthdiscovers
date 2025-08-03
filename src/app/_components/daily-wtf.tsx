@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { api, type RouterOutputs } from "@/trpc/react";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 type WtfProduct = RouterOutputs["wtfProduct"]["getDailyFeatured"];
 
@@ -49,7 +49,7 @@ export function DailyWtf() {
         {featuredProduct && (
           <>
             {/* Background Image */}
-            <Image
+            <ImageWithFallback
               src={featuredProduct.imageUrl}
               alt={featuredProduct.title}
               fill
@@ -65,7 +65,7 @@ export function DailyWtf() {
               <div className="flex items-end gap-4">
                 {/* Product Image Thumbnail */}
                 <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm">
-                  <Image
+                  <ImageWithFallback
                     src={featuredProduct.imageUrl}
                     alt={featuredProduct.title}
                     fill
