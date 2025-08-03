@@ -1,13 +1,32 @@
 "use client";
 
+import { useEffect } from "react";
 import { api, type RouterOutputs } from "@/trpc/react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { useErrorToast } from "@/components/ui/toast";
+import { ErrorBoundary, ProductErrorFallback } from "@/components/ui/error-boundary";
+import { Button } from "@/components/ui/button";
 
 type WtfProduct = RouterOutputs["wtfProduct"]["getDailyFeatured"];
 
-export function DailyWtf() {
-  const { data: featuredProduct, isLoading } =
-    api.wtfProduct.getDailyFeatured.useQuery();
+function DailyWtfContent() {
+  const errorToast = useErrorToast();
+  const { data: featuredProduct, isLoading, error, refetch } =
+    api.wtfProduct.getDailyFeatured.useQuery(
+      undefined,
+      {
+        retry: 3,
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      }
+    );
+
+  // Handle API errors
+  useEffect(() => {
+    if (error) {
+      console.error("Failed to load daily WTF:", error);
+      errorToast("Load Failed", "Failed to load today's featured product. Please try again.");
+    }
+  }, [error, errorToast]);
 
   if (isLoading) {
     return (
@@ -18,6 +37,29 @@ export function DailyWtf() {
         </div>
         <div className="mb-2 h-4 w-full rounded bg-gray-200"></div>
         <div className="h-4 w-3/4 rounded bg-gray-200"></div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center shadow-sm">
+        <div className="mb-2 text-4xl">⚠️</div>
+        <h3 className="mb-2 text-lg font-bold text-red-800">
+          Failed to Load Daily WTF
+        </h3>
+        <p className="text-sm text-red-600 mb-4">
+          {error.message}
+        </p>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => void refetch()}
+          className="border-red-300 text-red-700 hover:bg-red-100"
+        >
+          Try Again
+        </Button>
       </div>
     );
   }
@@ -114,5 +156,13 @@ export function DailyWtf() {
         )}
       </div>
     </div>
+  );
+}
+
+export function DailyWtf() {
+  return (
+    <ErrorBoundary fallback={ProductErrorFallback}>
+      <DailyWtfContent />
+    </ErrorBoundary>
   );
 }

@@ -4,36 +4,89 @@ import { useState } from "react";
 import { api, type RouterOutputs } from "@/trpc/react";
 import { BookmarkButton } from "./bookmark-button";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { useErrorToast } from "@/components/ui/toast";
+import { ErrorBoundary, ProductErrorFallback } from "@/components/ui/error-boundary";
 
 type WtfProduct = RouterOutputs["wtfProduct"]["getRandom"];
 
-export function WtfProductCard() {
+function WtfProductCardContent() {
   const [currentProduct, setCurrentProduct] = useState<WtfProduct | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const errorToast = useErrorToast();
 
   const randomProductQuery = api.wtfProduct.getRandom.useQuery(undefined, {
     enabled: false,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const handleShowAnother = async () => {
+    if (isLoading) return;
+    
     setIsLoading(true);
+    setError(null);
+    
     try {
       const result = await randomProductQuery.refetch();
       if (result.data) {
         setCurrentProduct(result.data);
+      } else if (result.error) {
+        throw new Error(result.error.message);
+      } else {
+        throw new Error("No product data received");
       }
     } catch (error) {
       console.error("Failed to fetch random product:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to load product";
+      setError(errorMessage);
+      errorToast("Load Failed", "Couldn't load a new product. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   // Load initial product
-  const { data: initialProduct } = api.wtfProduct.getRandom.useQuery();
+  const { data: initialProduct, isLoading: initialLoading, error: initialError } = api.wtfProduct.getRandom.useQuery(undefined, {
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
 
   const displayProduct = currentProduct ?? initialProduct;
 
+  // Show loading state for initial load
+  if (initialLoading && !displayProduct) {
+    return (
+      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-black/10 bg-white p-8 text-black shadow-sm">
+        <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-black/20 border-t-black"></div>
+        <h2 className="mb-2 text-2xl font-bold">Loading WTF Product...</h2>
+        <p className="text-center text-gray-600">
+          Finding something weird for you...
+        </p>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (initialError && !displayProduct) {
+    return (
+      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
+        <div className="mb-4 text-6xl">😵</div>
+        <h2 className="mb-2 text-2xl font-bold text-red-800">Failed to Load Product</h2>
+        <p className="mb-4 text-center text-red-600">
+          We couldn&apos;t load any products right now. Please try again.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  // Show empty state
   if (!displayProduct) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-black/10 bg-white p-8 text-black shadow-sm">
@@ -127,9 +180,22 @@ export function WtfProductCard() {
                 "🎲 Show Another WTF"
               )}
             </button>
+            {error && (
+              <div className="mt-2 rounded-lg bg-red-500/20 border border-red-300/30 px-3 py-2 text-sm text-red-100">
+                ⚠️ {error}
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export function WtfProductCard() {
+  return (
+    <ErrorBoundary fallback={ProductErrorFallback}>
+      <WtfProductCardContent />
+    </ErrorBoundary>
   );
 }

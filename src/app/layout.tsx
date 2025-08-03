@@ -4,7 +4,8 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
-
+import { ToastProvider } from "@/components/ui/toast";
+import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
   title: "WTF Earth Discovers - Weird Products from Our Planet",
   description:
@@ -23,7 +24,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <ToastProvider>{children}</ToastProvider>
+          <Analytics />
+        </TRPCReactProvider>
       </body>
     </html>
   );

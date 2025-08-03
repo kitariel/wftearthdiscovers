@@ -1,11 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { Filter, Shuffle } from "lucide-react";
 import { api } from "@/trpc/react";
+import { useErrorToast } from "@/components/ui/toast";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 
 interface FilterSidebarProps {
   onShuffle: () => void;
@@ -13,9 +15,24 @@ interface FilterSidebarProps {
   selectedCategory: string | null;
 }
 
-export function FilterSidebar({ onShuffle, onCategoryFilter, selectedCategory }: FilterSidebarProps) {
+function FilterSidebarContent({ onShuffle, onCategoryFilter, selectedCategory }: FilterSidebarProps) {
   const [open, setOpen] = React.useState(false);
-  const { data: tags, isLoading: tagsLoading } = api.wtfProduct.getAllTags.useQuery();
+  const errorToast = useErrorToast();
+  const { data: tags, isLoading: tagsLoading, error } = api.wtfProduct.getAllTags.useQuery(
+    undefined,
+    {
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    }
+  );
+
+  // Handle API errors
+  useEffect(() => {
+    if (error) {
+      console.error("Failed to load tags:", error);
+      errorToast("Load Failed", "Failed to load categories. Some filters may not be available.");
+    }
+  }, [error, errorToast]);
   
   // Create categories array with "All Products" first, then all unique tags
   const categories = React.useMemo(() => {
@@ -74,6 +91,20 @@ export function FilterSidebar({ onShuffle, onCategoryFilter, selectedCategory }:
                 <div className="text-center py-4">
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent mx-auto"></div>
                 </div>
+              ) : error ? (
+                <div className="text-center py-4">
+                  <div className="text-2xl mb-2">⚠️</div>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Failed to load categories
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => window.location.reload()}
+                  >
+                    Retry
+                  </Button>
+                </div>
               ) : (
                 categories.map((category) => {
                   const isSelected = category === "All Products" 
@@ -98,5 +129,30 @@ export function FilterSidebar({ onShuffle, onCategoryFilter, selectedCategory }:
         </div>
       </SheetContent>
     </Sheet>
+  );
+}
+
+export function FilterSidebar(props: FilterSidebarProps) {
+  return (
+    <ErrorBoundary fallback={() => (
+      <div className="w-64 border-r bg-card p-4">
+        <h2 className="mb-4 text-lg font-semibold">Categories</h2>
+        <div className="text-center py-8">
+          <div className="text-2xl mb-2">💥</div>
+          <p className="text-sm text-muted-foreground mb-3">
+            Something went wrong with the filters
+          </p>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => window.location.reload()}
+          >
+            Reload Page
+          </Button>
+        </div>
+      </div>
+    )}>
+      <FilterSidebarContent {...props} />
+    </ErrorBoundary>
   );
 }

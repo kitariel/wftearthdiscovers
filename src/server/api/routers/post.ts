@@ -177,7 +177,10 @@ export const wtfProductRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.wtfProduct.create({
-        data: input,
+        data: {
+          ...input,
+          platformType: "Unknown", // Add required platformType field
+        },
       });
     }),
 });

@@ -8,8 +8,8 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 export default async function Home() {
   // Prefetch data for better performance
-  void api.wtfProduct.getRandom.prefetch();
-  void api.wtfProduct.getDailyFeatured.prefetch();
+  // void api.wtfProduct.getRandom.prefetch();
+  // void api.wtfProduct.getDailyFeatured.prefetch();
 
   // https://2fulyibz94.ufs.sh/f/hmmNzN2AJUISL73txkT8DSGuIZABy60wbKmgjdrXUEOlYeVk
   // https://2fulyibz94.ufs.sh/f/hmmNzN2AJUISGbMdLPYpCiVBSwUI2j64O5XhDs7A3qRN0TJc
@@ -224,10 +224,10 @@ export default async function Home() {
               {/* Affiliate Disclosure */}
               <div className="mx-auto max-w-4xl text-xs leading-relaxed text-gray-500">
                 <p className="mb-2">
-                  WTF Earth Discovers is reader supported, some products displayed
-                  may earn us a commission if you purchase through our links.
-                  WTF Earth Discovers is a participant in the Amazon Services LLC
-                  Associates Program.
+                  WTF Earth Discovers is reader supported, some products
+                  displayed may earn us a commission if you purchase through our
+                  links. WTF Earth Discovers is a participant in the Amazon
+                  Services LLC Associates Program.
                   <a
                     href="#"
                     className="text-gray-600 underline transition-colors hover:text-black"

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { addBookmark, removeBookmark, isBookmarked } from "@/lib/bookmarks";
+import { useSuccessToast, useErrorToast } from "@/components/ui/toast";
 import type { RouterOutputs } from "@/trpc/react";
 
 type WtfProduct = NonNullable<RouterOutputs["wtfProduct"]["getRandom"]>;
@@ -21,19 +22,43 @@ export function BookmarkButton({
 }: BookmarkButtonProps) {
   const [bookmarked, setBookmarked] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const successToast = useSuccessToast();
+  const errorToast = useErrorToast();
 
   useEffect(() => {
     setIsClient(true);
     setBookmarked(isBookmarked(product.id));
   }, [product.id]);
 
-  const handleBookmarkToggle = () => {
-    if (bookmarked) {
-      removeBookmark(product.id);
-      setBookmarked(false);
-    } else {
-      addBookmark(product);
-      setBookmarked(true);
+  const handleBookmarkToggle = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    
+    try {
+      if (bookmarked) {
+        const result = removeBookmark(product.id);
+        if (result.success) {
+          setBookmarked(false);
+          successToast("Bookmark Removed", "Product removed from your bookmarks");
+        } else {
+          errorToast("Remove Failed", result.error ?? "Failed to remove bookmark");
+        }
+      } else {
+        const result = addBookmark(product);
+        if (result.success) {
+          setBookmarked(true);
+          successToast("Bookmarked!", "Product added to your bookmarks");
+        } else {
+          errorToast("Bookmark Failed", result.error ?? "Failed to add bookmark");
+        }
+      }
+    } catch (error) {
+      console.error("Bookmark operation failed:", error);
+      errorToast("Operation Failed", "An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -52,10 +77,17 @@ export function BookmarkButton({
   return (
     <button
       onClick={handleBookmarkToggle}
-      className={`${getSizeClasses(size)} ${getVariantClasses(variant, bookmarked)} ${className} transition-all duration-200 hover:scale-105`}
+      disabled={isLoading}
+      className={`${getSizeClasses(size)} ${getVariantClasses(variant, bookmarked)} ${className} transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`}
       title={bookmarked ? "Remove from bookmarks" : "Add to bookmarks"}
     >
-      <BookmarkIcon size={size} filled={bookmarked} />
+      {isLoading ? (
+        <div className={`animate-spin rounded-full border-2 border-current border-t-transparent ${
+          size === "sm" ? "h-3 w-3" : size === "md" ? "h-4 w-4" : "h-5 w-5"
+        }`} />
+      ) : (
+        <BookmarkIcon size={size} filled={bookmarked} />
+      )}
     </button>
   );
 }

@@ -8,6 +8,8 @@ import { BookmarkButton } from "./bookmark-button";
 import { Button } from "@/components/ui/button";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { useErrorToast } from "@/components/ui/toast";
+import { ErrorBoundary, GridErrorFallback } from "@/components/ui/error-boundary";
 
 type WtfProduct = NonNullable<RouterOutputs["wtfProduct"]["getRandom"]>;
 
@@ -74,6 +76,14 @@ function ProductCard({ product }: { product: WtfProduct }) {
 }
 
 export function ProductGrid() {
+  return (
+    <ErrorBoundary fallback={GridErrorFallback}>
+      <ProductGridContent />
+    </ErrorBoundary>
+  );
+}
+
+function ProductGridContent() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [displayedProducts, setDisplayedProducts] = useState<WtfProduct[]>([]);
   const [currentOffset, setCurrentOffset] = useState(0);
@@ -81,19 +91,34 @@ export function ProductGrid() {
   const [seed, setSeed] = useState<number>(Date.now());
   const [isMobile, setIsMobile] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const errorToast = useErrorToast();
 
   const LIMIT = 6;
 
   const {
     data: apiResponse,
     isLoading,
+    error: apiError,
     refetch,
   } = api.wtfProduct.getInfiniteScroll.useQuery({
     limit: LIMIT,
     offset: currentOffset,
     seed: seed, // Keep the same seed for consistent ordering
     ...(selectedCategory && { category: selectedCategory }),
+  }, {
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
+
+  // Handle API errors
+  useEffect(() => {
+    if (apiError) {
+      console.error("Failed to load products:", apiError);
+      setError(apiError.message);
+      errorToast("Load Failed", "Failed to load products. Please try again.");
+    }
+  }, [apiError, errorToast]);
 
   // Detect mobile screen size
   useEffect(() => {
@@ -133,14 +158,25 @@ export function ProductGrid() {
     setSeed(Date.now()); // New seed for shuffle
     setHasMore(true);
     setDisplayedProducts([]); // Clear existing products
+    setError(null);
   }, []);
 
   const loadMoreProducts = useCallback(() => {
     if (hasMore && !isLoadingMore && !isLoading) {
       setIsLoadingMore(true);
-      setCurrentOffset((prev) => prev + LIMIT);
+      setError(null);
+      
+      try {
+        setCurrentOffset((prev) => prev + LIMIT);
+      } catch (error) {
+        console.error("Failed to load more products:", error);
+        const errorMessage = error instanceof Error ? error.message : "Failed to load more products";
+        setError(errorMessage);
+        errorToast("Load More Failed", "Couldn't load more products. Please try again.");
+        setIsLoadingMore(false);
+      }
     }
-  }, [hasMore, isLoadingMore, isLoading]);
+  }, [hasMore, isLoadingMore, isLoading, errorToast]);
 
   const handleCategoryFilter = (category: string | null) => {
     setSelectedCategory(category);
@@ -168,6 +204,34 @@ export function ProductGrid() {
       <div className="py-8 text-center">
         <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-black"></div>
         <p className="text-gray-500">Loading WTF products...</p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && displayedProducts.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+        <div className="text-6xl mb-4">⚠️</div>
+        <h2 className="text-2xl font-bold mb-2">Oops! Something went wrong</h2>
+        <p className="text-gray-500 mb-4 max-w-md">
+          {error}
+        </p>
+        <Button 
+           onClick={() => {
+             setError(null);
+             void refetch();
+           }}
+           className="mb-2"
+         >
+           Try Again
+         </Button>
+        <Button 
+          variant="outline" 
+          onClick={loadInitialProducts}
+        >
+          Reset Filters
+        </Button>
       </div>
     );
   }
