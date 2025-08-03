@@ -19,12 +19,14 @@ model WtfProduct {
     tags          String[] // ["eco", "gift", "wtf"]
     isFeatured    Boolean  @default(false) // for Daily Drop
     platformType  String // Amazon , Etsy
+    clickCount    Int      @default(0) // Track product clicks for popularity
     createdAt     DateTime @default(now())
 
     @@index([title])
     @@index([isFeatured])
     @@index([tags])
     @@index([createdAt])
+    @@index([clickCount])
 }
 
 model BookmarkCollection {

@@ -5,14 +5,19 @@ import { api } from "@/trpc/react";
 import type { RouterOutputs } from "@/trpc/react";
 import { BookmarkButton } from "./bookmark-button";
 import { CollectionSelector, CollectionBadge } from "./collection-selector";
+import { ShareButton } from "./share-button";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { useErrorToast } from "@/components/ui/toast";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { RecommendationsModal, useRecommendationsModal } from "./recommendations-modal";
 import { Sparkles, Filter, SortAsc } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useClickTracker } from "@/lib/hooks/use-click-tracker";
+import { ClickCounter } from "./click-counter";
 
-type WtfProduct = NonNullable<RouterOutputs["wtfProduct"]["getRandom"]>;
+type WtfProduct = NonNullable<RouterOutputs["wtfProduct"]["getRandom"]> & {
+  clickCount?: number;
+};
 
 interface SearchResultsProps {
   query: string;
@@ -20,6 +25,13 @@ interface SearchResultsProps {
 }
 
 function SearchResultCard({ product, onShowRecommendations }: { product: WtfProduct; onShowRecommendations: (product: WtfProduct) => void }) {
+  const { trackClick } = useClickTracker();
+
+  const handleProductClick = async () => {
+    await trackClick(product.id);
+    window.open(product.affiliateLink, '_blank');
+  };
+
   return (
     <div className="group relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
       <div className="relative aspect-[4/4] bg-gray-50">
@@ -34,11 +46,18 @@ function SearchResultCard({ product, onShowRecommendations }: { product: WtfProd
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
 
-        <div className="absolute top-3 left-3">
+        <div className="absolute top-3 left-3 flex flex-col gap-2">
           <BookmarkButton product={product} size="sm" variant="filled" />
+          <ClickCounter clickCount={product.clickCount ?? 0} />
         </div>
 
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex gap-2">
+          <ShareButton 
+            title={product.title}
+            text={`Check out this amazing product: ${product.title}`}
+            url={`${window.location.origin}?product=${product.id}`}
+            className="scale-75"
+          />
           <CollectionSelector product={product} className="scale-75" />
         </div>
 
@@ -69,14 +88,12 @@ function SearchResultCard({ product, onShowRecommendations }: { product: WtfProd
           </div>
 
           <div className="flex gap-2">
-            <a
-              href={product.affiliateLink}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={handleProductClick}
               className="flex-1 rounded-lg bg-white/90 px-4 py-2.5 text-center text-sm font-semibold text-black backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white"
             >
               🛒 Check It Out
-            </a>
+            </button>
             <button
               onClick={() => onShowRecommendations(product)}
               className="rounded-lg bg-blue-600/90 px-3 py-2.5 text-white backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-blue-600"

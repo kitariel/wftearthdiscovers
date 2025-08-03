@@ -13,9 +13,14 @@ import { CollectionModal } from "@/app/_components/collection-modal";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { BookmarkButton } from "@/app/_components/bookmark-button";
 import { CollectionSelector } from "@/app/_components/collection-selector";
+import { ShareButton } from "@/app/_components/share-button";
+import { useClickTracker } from "@/lib/hooks/use-click-tracker";
+import { ClickCounter } from "@/app/_components/click-counter";
 import type { RouterOutputs } from "@/trpc/react";
 
-type WtfProduct = NonNullable<RouterOutputs["wtfProduct"]["getRandom"]>;
+type WtfProduct = NonNullable<RouterOutputs["wtfProduct"]["getRandom"]> & {
+  clickCount?: number;
+};
 
 export default function CollectionsPage() {
   const [collections, setCollections] = useState<BookmarkCollection[]>([]);
@@ -23,6 +28,12 @@ export default function CollectionsPage() {
   const [editingCollection, setEditingCollection] = useState<BookmarkCollection | null>(null);
   const [selectedCollection, setSelectedCollection] = useState<BookmarkCollection | null>(null);
   const [collectionProducts, setCollectionProducts] = useState<WtfProduct[]>([]);
+  const { trackClick } = useClickTracker();
+
+  const handleProductClick = async (product: WtfProduct) => {
+    await trackClick(product.id);
+    window.open(product.affiliateLink, '_blank');
+  };
 
   // Load collections
   useEffect(() => {
@@ -104,20 +115,27 @@ export default function CollectionsPage() {
               Back to Collections
             </button>
             
-            <div className="flex items-center gap-4">
-              <div
-                className="h-8 w-8 rounded-full border border-gray-300"
-                style={{ backgroundColor: selectedCollection.color }}
-              />
-              <div>
-                <h1 className="text-3xl font-bold text-black">{selectedCollection.name}</h1>
-                {selectedCollection.description && (
-                  <p className="text-gray-600">{selectedCollection.description}</p>
-                )}
-                <p className="text-sm text-gray-500">
-                  {collectionProducts.length} item{collectionProducts.length !== 1 ? 's' : ''}
-                </p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div
+                  className="h-8 w-8 rounded-full border border-gray-300"
+                  style={{ backgroundColor: selectedCollection.color }}
+                />
+                <div>
+                  <h1 className="text-3xl font-bold text-black">{selectedCollection.name}</h1>
+                  {selectedCollection.description && (
+                    <p className="text-gray-600">{selectedCollection.description}</p>
+                  )}
+                  <p className="text-sm text-gray-500">
+                    {collectionProducts.length} item{collectionProducts.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
               </div>
+              <ShareButton 
+                title={`${selectedCollection.name} Collection`}
+                text={`Check out my curated collection: ${selectedCollection.name} - ${collectionProducts.length} amazing products!`}
+                url={`${window.location.origin}/collections?collection=${selectedCollection.id}`}
+              />
             </div>
           </div>
 
@@ -154,13 +172,20 @@ export default function CollectionsPage() {
 
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-                    {/* Bookmark Button */}
-                    <div className="absolute top-3 left-3">
+                    {/* Bookmark Button and Click Counter */}
+                    <div className="absolute top-3 left-3 flex flex-col gap-2">
                       <BookmarkButton product={product} size="sm" variant="filled" />
+                      <ClickCounter clickCount={product.clickCount ?? 0} />
                     </div>
 
-                    {/* Collection Selector */}
-                    <div className="absolute top-3 right-3">
+                    {/* Share and Collection Buttons */}
+                    <div className="absolute top-3 right-3 flex gap-2">
+                      <ShareButton 
+                        title={product.title}
+                        text={`Check out this amazing product: ${product.title}`}
+                        url={`${window.location.origin}?product=${product.id}`}
+                        className="scale-75"
+                      />
                       <CollectionSelector product={product} className="scale-75" />
                     </div>
 
@@ -188,14 +213,12 @@ export default function CollectionsPage() {
                       </div>
 
                       {/* Action Button */}
-                      <a
-                        href={product.affiliateLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() => handleProductClick(product)}
                         className="block w-full rounded-lg bg-white/90 px-4 py-2.5 text-center text-sm font-semibold text-black backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white"
                       >
                         🛒 Check It Out
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </div>

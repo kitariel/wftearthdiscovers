@@ -12,6 +12,18 @@ export const wtfProductRouter = createTRPCRouter({
     const skip = Math.floor(Math.random() * count);
     const product = await ctx.db.wtfProduct.findFirst({
       skip,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        affiliateLink: true,
+        tags: true,
+        isFeatured: true,
+        platformType: true,
+        createdAt: true,
+        clickCount: true,
+      },
     });
 
     return product;
@@ -20,6 +32,18 @@ export const wtfProductRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     return ctx.db.wtfProduct.findMany({
       orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        affiliateLink: true,
+        tags: true,
+        isFeatured: true,
+        platformType: true,
+        createdAt: true,
+        clickCount: true,
+      },
     });
   }),
 
@@ -28,6 +52,18 @@ export const wtfProductRouter = createTRPCRouter({
     const featured = await ctx.db.wtfProduct.findFirst({
       where: { isFeatured: true },
       orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        affiliateLink: true,
+        tags: true,
+        isFeatured: true,
+        platformType: true,
+        createdAt: true,
+        clickCount: true,
+      },
     });
 
     return featured;
@@ -36,10 +72,24 @@ export const wtfProductRouter = createTRPCRouter({
   getByTags: publicProcedure
     .input(z.object({ tags: z.array(z.string()).optional() }))
     .query(async ({ ctx, input }) => {
+      const selectFields = {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        affiliateLink: true,
+        tags: true,
+        isFeatured: true,
+        platformType: true,
+        createdAt: true,
+        clickCount: true,
+      };
+
       if (!input.tags || input.tags.length === 0) {
         return ctx.db.wtfProduct.findMany({
           orderBy: { createdAt: "desc" },
           take: 20,
+          select: selectFields,
         });
       }
 
@@ -51,6 +101,7 @@ export const wtfProductRouter = createTRPCRouter({
         },
         orderBy: { createdAt: "desc" },
         take: 20,
+        select: selectFields,
       });
     }),
 
@@ -76,6 +127,18 @@ export const wtfProductRouter = createTRPCRouter({
       // Get all products matching the filter
       const allProducts = await ctx.db.wtfProduct.findMany({
         where: whereClause,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          imageUrl: true,
+          affiliateLink: true,
+          tags: true,
+          isFeatured: true,
+          platformType: true,
+          createdAt: true,
+          clickCount: true,
+        },
       });
 
       // Shuffle the results server-side
@@ -328,6 +391,28 @@ export const wtfProductRouter = createTRPCRouter({
         totalCount,
         hasMore: offset + limit < totalCount,
       };
+    }),
+
+  trackClick: publicProcedure
+    .input(
+      z.object({
+        productId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Increment the click count for the product
+      return ctx.db.wtfProduct.update({
+        where: { id: input.productId },
+        data: {
+          clickCount: {
+            increment: 1,
+          },
+        },
+        select: {
+          id: true,
+          clickCount: true,
+        },
+      });
     }),
 
   create: publicProcedure

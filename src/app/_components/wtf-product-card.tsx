@@ -4,6 +4,7 @@ import { useState } from "react";
 import { api, type RouterOutputs } from "@/trpc/react";
 import { BookmarkButton } from "./bookmark-button";
 import { CollectionSelector, CollectionBadge } from "./collection-selector";
+import { ShareButton } from "./share-button";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { useErrorToast } from "@/components/ui/toast";
 import { ErrorBoundary, ProductErrorFallback } from "@/components/ui/error-boundary";
@@ -141,8 +142,13 @@ function WtfProductCardContent() {
             />
           </div>
 
-          {/* Collection Selector */}
-          <div className="absolute top-20 right-4">
+          {/* Share and Collection Buttons */}
+          <div className="absolute top-20 right-4 flex gap-2">
+            <ShareButton 
+              title={displayProduct.title}
+              text={`Check out this amazing product: ${displayProduct.title}`}
+              url={`${window.location.origin}?product=${displayProduct.id}`}
+            />
             <CollectionSelector product={displayProduct} />
           </div>
 

@@ -6,6 +6,7 @@ import { ExternalLink, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BookmarkButton } from "./bookmark-button";
 import { CollectionSelector, CollectionBadge } from "./collection-selector";
+import { ShareButton } from "./share-button";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import type { RouterOutputs } from "@/trpc/react";
 
@@ -39,6 +40,12 @@ export function RecommendationCard({
           />
           <div className="absolute top-2 right-2 flex gap-1">
             <BookmarkButton product={product} size="sm" />
+            <ShareButton 
+              title={product.title}
+              text={`Check out this amazing product: ${product.title}`}
+              url={`${window.location.origin}?product=${product.id}`}
+              className="scale-75"
+            />
             <CollectionSelector product={product} className="scale-75" />
           </div>
           {score > 0 && (
