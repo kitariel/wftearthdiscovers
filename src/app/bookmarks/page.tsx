@@ -11,7 +11,10 @@ import {
   type BookmarkedProduct,
 } from "@/lib/bookmarks";
 import { BookmarkButton } from "../_components/bookmark-button";
-import { CollectionSelector, CollectionBadge } from "../_components/collection-selector";
+import {
+  CollectionSelector,
+  CollectionBadge,
+} from "../_components/collection-selector";
 
 export default function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState<BookmarkedProduct[]>([]);
@@ -131,7 +134,11 @@ export default function BookmarksPage() {
                   {/* Bookmark Button */}
                   <div className="absolute top-3 left-3">
                     <BookmarkButton
-                      product={product}
+                      product={{
+                        ...product,
+                        clickCount: 0,
+                        createdAt: new Date(),
+                      }}
                       size="sm"
                       variant="filled"
                     />
@@ -139,7 +146,14 @@ export default function BookmarksPage() {
 
                   {/* Collection Selector */}
                   <div className="absolute top-3 right-3">
-                    <CollectionSelector product={product} className="scale-75" />
+                    <CollectionSelector
+                      product={{
+                        ...product,
+                        clickCount: 0,
+                        createdAt: new Date(),
+                      }}
+                      className="scale-75"
+                    />
                   </div>
 
                   {/* Floating Content */}
@@ -150,7 +164,14 @@ export default function BookmarksPage() {
 
                     {/* Collection Badges */}
                     <div className="mb-3">
-                      <CollectionBadge product={product} maxVisible={2} />
+                      <CollectionBadge
+                        product={{
+                          ...product,
+                          clickCount: 0,
+                          createdAt: new Date(),
+                        }}
+                        maxVisible={2}
+                      />
                     </div>
 
                     {/* Tags */}

@@ -25,14 +25,18 @@ type WtfProduct = NonNullable<RouterOutputs["wtfProduct"]["getRandom"]> & {
 export default function CollectionsPage() {
   const [collections, setCollections] = useState<BookmarkCollection[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCollection, setEditingCollection] = useState<BookmarkCollection | null>(null);
-  const [selectedCollection, setSelectedCollection] = useState<BookmarkCollection | null>(null);
-  const [collectionProducts, setCollectionProducts] = useState<WtfProduct[]>([]);
+  const [editingCollection, setEditingCollection] =
+    useState<BookmarkCollection | null>(null);
+  const [selectedCollection, setSelectedCollection] =
+    useState<BookmarkCollection | null>(null);
+  const [collectionProducts, setCollectionProducts] = useState<WtfProduct[]>(
+    [],
+  );
   const { trackClick } = useClickTracker();
 
   const handleProductClick = async (product: WtfProduct) => {
     await trackClick(product.id);
-    window.open(product.affiliateLink, '_blank');
+    window.open(product.affiliateLink, "_blank");
   };
 
   // Load collections
@@ -43,19 +47,24 @@ export default function CollectionsPage() {
     };
 
     loadCollections();
-    
+
     // Listen for storage changes
     const handleStorageChange = () => loadCollections();
-    window.addEventListener('storage', handleStorageChange);
-    
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // Load products for selected collection
   useEffect(() => {
     if (selectedCollection) {
       const products = getCollectionProducts(selectedCollection.id);
-      setCollectionProducts(products);
+      setCollectionProducts(
+        products.map((product) => ({
+          ...product,
+          clickCount: 0, // Set default clickCount for products from collections
+        })),
+      );
     }
   }, [selectedCollection]);
 
@@ -75,11 +84,15 @@ export default function CollectionsPage() {
       return;
     }
 
-    if (confirm(`Are you sure you want to delete "${collection.name}"? This will remove all products from this collection.`)) {
+    if (
+      confirm(
+        `Are you sure you want to delete "${collection.name}"? This will remove all products from this collection.`,
+      )
+    ) {
       deleteCollection(collection.id);
       const updatedCollections = getCollections();
       setCollections(updatedCollections);
-      
+
       // If we're viewing the deleted collection, go back to collections list
       if (selectedCollection?.id === collection.id) {
         setSelectedCollection(null);
@@ -103,18 +116,18 @@ export default function CollectionsPage() {
   // If viewing a specific collection
   if (selectedCollection) {
     return (
-      <main className="min-h-screen bg-gray-100 pt-8 px-8 pb-8">
+      <main className="min-h-screen bg-gray-100 px-8 pt-8 pb-8">
         <div className="container mx-auto max-w-6xl">
           {/* Header */}
           <div className="mb-8">
             <button
               onClick={handleBackToCollections}
-              className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
+              className="mb-4 flex items-center gap-2 text-gray-600 transition-colors hover:text-gray-800"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Collections
             </button>
-            
+
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div
@@ -122,16 +135,21 @@ export default function CollectionsPage() {
                   style={{ backgroundColor: selectedCollection.color }}
                 />
                 <div>
-                  <h1 className="text-3xl font-bold text-black">{selectedCollection.name}</h1>
+                  <h1 className="text-3xl font-bold text-black">
+                    {selectedCollection.name}
+                  </h1>
                   {selectedCollection.description && (
-                    <p className="text-gray-600">{selectedCollection.description}</p>
+                    <p className="text-gray-600">
+                      {selectedCollection.description}
+                    </p>
                   )}
                   <p className="text-sm text-gray-500">
-                    {collectionProducts.length} item{collectionProducts.length !== 1 ? 's' : ''}
+                    {collectionProducts.length} item
+                    {collectionProducts.length !== 1 ? "s" : ""}
                   </p>
                 </div>
               </div>
-              <ShareButton 
+              <ShareButton
                 title={`${selectedCollection.name} Collection`}
                 text={`Check out my curated collection: ${selectedCollection.name} - ${collectionProducts.length} amazing products!`}
                 url={`${window.location.origin}/collections?collection=${selectedCollection.id}`}
@@ -174,37 +192,46 @@ export default function CollectionsPage() {
 
                     {/* Bookmark Button and Click Counter */}
                     <div className="absolute top-3 left-3 flex flex-col gap-2">
-                      <BookmarkButton product={product} size="sm" variant="filled" />
+                      <BookmarkButton
+                        product={product}
+                        size="sm"
+                        variant="filled"
+                      />
                       <ClickCounter clickCount={product.clickCount ?? 0} />
                     </div>
 
                     {/* Share and Collection Buttons */}
                     <div className="absolute top-3 right-3 flex gap-2">
-                      <ShareButton 
+                      <ShareButton
                         title={product.title}
                         text={`Check out this amazing product: ${product.title}`}
                         url={`${window.location.origin}?product=${product.id}`}
                         className="scale-75"
                       />
-                      <CollectionSelector product={product} className="scale-75" />
+                      <CollectionSelector
+                        product={product}
+                        className="scale-75"
+                      />
                     </div>
 
                     {/* Product Info */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="absolute right-0 bottom-0 left-0 p-4">
                       <h3 className="mb-3 line-clamp-2 text-lg font-bold text-white drop-shadow-lg">
                         {product.title}
                       </h3>
 
                       {/* Tags */}
                       <div className="mb-4 flex flex-wrap gap-1">
-                        {product.tags.slice(0, 2).map((tag: string, index: number) => (
-                          <span
-                            key={index}
-                            className="rounded-full border border-white/30 bg-white/20 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
+                        {product.tags
+                          .slice(0, 2)
+                          .map((tag: string, index: number) => (
+                            <span
+                              key={index}
+                              className="rounded-full border border-white/30 bg-white/20 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
                         {product.tags.length > 2 && (
                           <span className="self-center text-xs text-white/80">
                             +{product.tags.length - 2}
@@ -232,7 +259,7 @@ export default function CollectionsPage() {
 
   // Collections overview page
   return (
-    <main className="min-h-screen bg-gray-100 pt-8 px-8 pb-8">
+    <main className="min-h-screen bg-gray-100 px-8 pt-8 pb-8">
       <div className="container mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
@@ -271,7 +298,7 @@ export default function CollectionsPage() {
             {collections.map((collection) => (
               <div
                 key={collection.id}
-                className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
               >
                 {/* Collection Header */}
                 <div className="p-6">
@@ -281,31 +308,31 @@ export default function CollectionsPage() {
                         className="h-6 w-6 rounded-full border border-gray-300"
                         style={{ backgroundColor: collection.color }}
                       />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 truncate">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate font-semibold text-gray-900">
                           {collection.name}
                         </h3>
                         {collection.description && (
-                          <p className="text-sm text-gray-500 line-clamp-2">
+                          <p className="line-clamp-2 text-sm text-gray-500">
                             {collection.description}
                           </p>
                         )}
                       </div>
                     </div>
-                    
+
                     {/* Actions */}
                     {!collection.isDefault && (
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                         <button
                           onClick={() => handleEditCollection(collection)}
-                          className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                          className="p-1 text-gray-400 transition-colors hover:text-gray-600"
                           title="Edit collection"
                         >
                           <Edit2 className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteCollection(collection)}
-                          className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                          className="p-1 text-gray-400 transition-colors hover:text-red-600"
                           title="Delete collection"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -318,7 +345,8 @@ export default function CollectionsPage() {
                   <div className="mb-4 flex items-center gap-4 text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <Folder className="h-4 w-4" />
-                      {collection.bookmarkCount} item{collection.bookmarkCount !== 1 ? 's' : ''}
+                      {collection.bookmarkCount} item
+                      {collection.bookmarkCount !== 1 ? "s" : ""}
                     </span>
                     {collection.isDefault && (
                       <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
