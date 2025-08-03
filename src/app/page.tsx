@@ -24,7 +24,7 @@ export default async function Home() {
 
   return (
     <HydrateClient>
-      <main className="min-h-screen bg-gray-100 p-8">
+      <main className="min-h-screen bg-gray-100 pt-8 px-8 pb-8">
         <div className="container mx-auto max-w-6xl">
           {/* Hero Section */}
           <div className="mx-auto mb-16 max-w-3xl text-center">

@@ -26,3 +26,33 @@ model WtfProduct {
     @@index([tags])
     @@index([createdAt])
 }
+
+model BookmarkCollection {
+    id          String   @id @default(cuid())
+    name        String
+    description String?
+    color       String   @default("#3B82F6") // Default blue color
+    isDefault   Boolean  @default(false) // For "All Bookmarks" collection
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    // Relations
+    bookmarks   Bookmark[]
+
+    @@index([createdAt])
+}
+
+model Bookmark {
+    id           String   @id @default(cuid())
+    productId    String
+    collectionId String
+    createdAt    DateTime @default(now())
+
+    // Relations
+    collection   BookmarkCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+    @@unique([productId, collectionId]) // Prevent duplicate bookmarks in same collection
+    @@index([productId])
+    @@index([collectionId])
+    @@index([createdAt])
+}

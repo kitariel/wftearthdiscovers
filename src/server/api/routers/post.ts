@@ -164,6 +164,172 @@ export const wtfProductRouter = createTRPCRouter({
     return uniqueTags;
   }),
 
+  getRecommendations: publicProcedure
+    .input(
+      z.object({
+        productId: z.string(),
+        limit: z.number().min(1).max(10).default(4),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      // Get the source product
+      const sourceProduct = await ctx.db.wtfProduct.findUnique({
+        where: { id: input.productId },
+        select: { tags: true },
+      });
+
+      if (!sourceProduct || sourceProduct.tags.length === 0) {
+        return [];
+      }
+
+      // Find products with overlapping tags (excluding the source product)
+      const candidates = await ctx.db.wtfProduct.findMany({
+        where: {
+          id: { not: input.productId },
+          tags: {
+            hasSome: sourceProduct.tags,
+          },
+        },
+      });
+
+      // Score products by number of shared tags and sort
+      const scoredProducts = candidates
+        .map((product) => {
+          const sharedTags = product.tags.filter((tag) =>
+            sourceProduct.tags.includes(tag),
+          );
+          return {
+            ...product,
+            score: sharedTags.length,
+            sharedTags,
+          };
+        })
+        .sort((a, b) => {
+          // Sort by score (descending), then by creation date (newest first)
+          if (b.score !== a.score) return b.score - a.score;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        })
+        .slice(0, input.limit);
+
+      return scoredProducts;
+    }),
+
+  search: publicProcedure
+    .input(
+      z.object({
+        query: z.string().min(1),
+        limit: z.number().min(1).max(50).default(20),
+        offset: z.number().min(0).default(0),
+        category: z.string().optional(),
+        sortBy: z.enum(["relevance", "newest", "oldest", "title"]).default("relevance"),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { query, limit, offset, category, sortBy } = input;
+      
+      // Build search conditions
+      const searchConditions = {
+        OR: [
+          {
+            title: {
+              contains: query,
+              mode: "insensitive" as const,
+            },
+          },
+          {
+            description: {
+              contains: query,
+              mode: "insensitive" as const,
+            },
+          },
+          {
+            tags: {
+              hasSome: [query],
+            },
+          },
+        ],
+        ...(category && {
+          tags: {
+            has: category,
+          },
+        }),
+      };
+
+      // Build order by clause
+      let orderBy: { createdAt?: "desc" | "asc"; title?: "asc" };
+      switch (sortBy) {
+        case "newest":
+          orderBy = { createdAt: "desc" };
+          break;
+        case "oldest":
+          orderBy = { createdAt: "asc" };
+          break;
+        case "title":
+          orderBy = { title: "asc" };
+          break;
+        case "relevance":
+        default:
+          // For relevance, we'll sort by title match first, then description match
+          orderBy = { createdAt: "desc" }; // Fallback to newest for now
+          break;
+      }
+
+      const [products, totalCount] = await Promise.all([
+        ctx.db.wtfProduct.findMany({
+          where: searchConditions,
+          orderBy,
+          take: limit,
+          skip: offset,
+        }),
+        ctx.db.wtfProduct.count({
+          where: searchConditions,
+        }),
+      ]);
+
+      // Calculate relevance score for sorting when sortBy is "relevance"
+      let scoredProducts: (typeof products[0] & { relevanceScore?: number })[] = products;
+      if (sortBy === "relevance") {
+        const productsWithScore = products
+          .map((product) => {
+            let score = 0;
+            const lowerQuery = query.toLowerCase();
+            const lowerTitle = product.title.toLowerCase();
+            const lowerDescription = product.description.toLowerCase();
+            
+            // Title exact match gets highest score
+            if (lowerTitle === lowerQuery) score += 100;
+            // Title starts with query gets high score
+            else if (lowerTitle.startsWith(lowerQuery)) score += 50;
+            // Title contains query gets medium score
+            else if (lowerTitle.includes(lowerQuery)) score += 25;
+            
+            // Description contains query gets lower score
+            if (lowerDescription.includes(lowerQuery)) score += 10;
+            
+            // Tag exact match gets high score
+            if (product.tags.some(tag => tag.toLowerCase() === lowerQuery)) score += 75;
+            // Tag contains query gets medium score
+            else if (product.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) score += 15;
+            
+            return { ...product, relevanceScore: score };
+          })
+          .sort((a, b) => {
+            if (b.relevanceScore !== a.relevanceScore) {
+              return b.relevanceScore - a.relevanceScore;
+            }
+            // If same relevance score, sort by newest
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
+        scoredProducts = productsWithScore;
+      }
+
+      return {
+        products: scoredProducts,
+        totalCount,
+        hasMore: offset + limit < totalCount,
+      };
+    }),
+
   create: publicProcedure
     .input(
       z.object({

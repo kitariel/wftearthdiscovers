@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { Folder } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import {
   getBookmarks,
@@ -10,6 +11,7 @@ import {
   type BookmarkedProduct,
 } from "@/lib/bookmarks";
 import { BookmarkButton } from "../_components/bookmark-button";
+import { CollectionSelector, CollectionBadge } from "../_components/collection-selector";
 
 export default function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState<BookmarkedProduct[]>([]);
@@ -50,7 +52,7 @@ export default function BookmarksPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 pt-8 pb-8">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
@@ -64,10 +66,11 @@ export default function BookmarksPage() {
 
           <div className="flex gap-4">
             <Link
-              href="/"
-              className="rounded-lg border border-black/20 bg-white px-4 py-2 font-semibold text-black transition-colors duration-300 hover:bg-gray-50"
+              href="/collections"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors duration-300 hover:bg-blue-700"
             >
-              ← Back to Home
+              <Folder className="h-4 w-4" />
+              Manage Collections
             </Link>
 
             {bookmarks.length > 0 && (
@@ -134,11 +137,21 @@ export default function BookmarksPage() {
                     />
                   </div>
 
+                  {/* Collection Selector */}
+                  <div className="absolute top-3 right-3">
+                    <CollectionSelector product={product} className="scale-75" />
+                  </div>
+
                   {/* Floating Content */}
                   <div className="absolute right-0 bottom-0 left-0 p-4">
                     <h3 className="mb-3 line-clamp-2 text-lg leading-tight font-bold text-white drop-shadow-lg">
                       {product.title}
                     </h3>
+
+                    {/* Collection Badges */}
+                    <div className="mb-3">
+                      <CollectionBadge product={product} maxVisible={2} />
+                    </div>
 
                     {/* Tags */}
                     <div className="mb-3 flex flex-wrap gap-1">

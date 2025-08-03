@@ -5,16 +5,21 @@ import { api } from "@/trpc/react";
 import type { RouterOutputs } from "@/trpc/react";
 import { FilterSidebar } from "./filter-sidebar";
 import { BookmarkButton } from "./bookmark-button";
+import { CollectionSelector, CollectionBadge } from "./collection-selector";
 import { Button } from "@/components/ui/button";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { useErrorToast } from "@/components/ui/toast";
 import { ErrorBoundary, GridErrorFallback } from "@/components/ui/error-boundary";
+import { RecommendationsModal, useRecommendationsModal } from "./recommendations-modal";
+import { SearchBar } from "./search-bar";
+import { SearchResults } from "./search-results";
+import { Sparkles } from "lucide-react";
 
 type WtfProduct = NonNullable<RouterOutputs["wtfProduct"]["getRandom"]>;
 
-// Product Card Component (unchanged)
-function ProductCard({ product }: { product: WtfProduct }) {
+// Product Card Component
+function ProductCard({ product, onShowRecommendations }: { product: WtfProduct; onShowRecommendations: (product: WtfProduct) => void }) {
   return (
     <div className="group relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
       <div className="relative aspect-[4/4] bg-gray-50">
@@ -40,12 +45,16 @@ function ProductCard({ product }: { product: WtfProduct }) {
           <BookmarkButton product={product} size="sm" variant="filled" />
         </div>
 
+        <div className="absolute top-3 right-3">
+          <CollectionSelector product={product} className="scale-75" />
+        </div>
+
         <div className="absolute right-0 bottom-0 left-0 p-4">
           <h3 className="mb-3 line-clamp-2 text-lg leading-tight font-bold text-white drop-shadow-lg">
             {product.title}
           </h3>
 
-          <div className="mb-4 flex flex-wrap gap-1">
+          <div className="mb-3 flex flex-wrap gap-1">
             {product.tags.slice(0, 2).map((tag: string, index: number) => (
               <span
                 key={index}
@@ -61,14 +70,28 @@ function ProductCard({ product }: { product: WtfProduct }) {
             )}
           </div>
 
-          <a
-            href={product.affiliateLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full rounded-lg bg-white/90 px-4 py-2.5 text-center text-sm font-semibold text-black backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white"
-          >
-            🛒 Check It Out
-          </a>
+          {/* Collection Badges */}
+          <div className="mb-3">
+            <CollectionBadge product={product} maxVisible={2} />
+          </div>
+
+          <div className="flex gap-2">
+            <a
+              href={product.affiliateLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 rounded-lg bg-white/90 px-4 py-2.5 text-center text-sm font-semibold text-black backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white"
+            >
+              🛒 Check It Out
+            </a>
+            <button
+              onClick={() => onShowRecommendations(product)}
+              className="rounded-lg bg-blue-600/90 px-3 py-2.5 text-white backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-blue-600"
+              title="More Like This"
+            >
+              <Sparkles className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -92,7 +115,10 @@ function ProductGridContent() {
   const [isMobile, setIsMobile] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isSearchMode, setIsSearchMode] = useState(false);
   const errorToast = useErrorToast();
+  const { isOpen, selectedProduct, openModal, closeModal } = useRecommendationsModal();
 
   const LIMIT = 6;
 
@@ -199,6 +225,17 @@ function ProductGridContent() {
     };
   }, [loadInitialProducts]);
 
+  // Search handlers
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+    setIsSearchMode(!!query.trim());
+  }, []);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery("");
+    setIsSearchMode(false);
+  }, []);
+
   if (isLoading && currentOffset === 0) {
     return (
       <div className="py-8 text-center">
@@ -238,52 +275,74 @@ function ProductGridContent() {
 
   return (
     <div className="w-full">
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-black">
-          {selectedCategory
-            ? `${selectedCategory} Products`
-            : "All WTF Products"}
-        </h2>
-        <FilterSidebar
-          onShuffle={loadInitialProducts}
-          onCategoryFilter={handleCategoryFilter}
-          selectedCategory={selectedCategory}
+      {/* Search Bar */}
+      <div className="mb-6">
+        <SearchBar
+          onSearch={handleSearch}
+          onClear={handleClearSearch}
+          placeholder="Search products by title, description, or tags..."
+          className="w-full"
         />
       </div>
 
-      {!displayedProducts || displayedProducts.length === 0 ? (
-        <div className="rounded-lg border border-black/10 bg-gray-50 py-8 text-center text-gray-500">
-          <p className="text-lg font-medium text-black">No WTF Products Yet!</p>
-          <p className="text-sm text-gray-500">
-            Add some products using the admin form.
-          </p>
+      {/* Header and Filters - only show when not in search mode */}
+      {!isSearchMode && (
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-black">
+            {selectedCategory
+              ? `${selectedCategory} Products`
+              : "All WTF Products"}
+          </h2>
+          <FilterSidebar
+            onShuffle={loadInitialProducts}
+            onCategoryFilter={handleCategoryFilter}
+            selectedCategory={selectedCategory}
+          />
         </div>
+      )}
+
+      {/* Conditional rendering: Search Results or Regular Product Grid */}
+      {isSearchMode ? (
+        <SearchResults
+           query={searchQuery}
+           selectedCategory={selectedCategory ?? undefined}
+         />
       ) : (
-        // FIXED: Always use infinite scroll, remove mobile-specific logic
-        <InfiniteScroll
-          dataLength={displayedProducts.length}
-          next={loadMoreProducts}
-          hasMore={hasMore}
-          loader={
-            <div className="py-8 text-center">
-              <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-black"></div>
-              <p className="text-gray-500">Loading more products...</p>
-            </div>
-          }
-          endMessage={
-            <div className="py-8 text-center text-gray-500">
-              <p>You&apos;ve seen all the amazing products!</p>
-            </div>
-          }
-          // FIXED: Add scrollThreshold to trigger loading earlier
-          scrollThreshold={0.8}
-        >
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {displayedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+        // Regular Product Grid
+        !displayedProducts || displayedProducts.length === 0 ? (
+          <div className="rounded-lg border border-black/10 bg-gray-50 py-8 text-center text-gray-500">
+            <p className="text-lg font-medium text-black">No WTF Products Yet!</p>
+            <p className="text-sm text-gray-500">
+              Add some products using the admin form.
+            </p>
           </div>
-        </InfiniteScroll>
+        ) : (
+          // FIXED: Always use infinite scroll, remove mobile-specific logic
+          <InfiniteScroll
+            dataLength={displayedProducts.length}
+            next={loadMoreProducts}
+            hasMore={hasMore}
+            loader={
+              <div className="py-8 text-center">
+                <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-black"></div>
+                <p className="text-gray-500">Loading more products...</p>
+              </div>
+            }
+            endMessage={
+              <div className="py-8 text-center text-gray-500">
+                <p>You&apos;ve seen all the amazing products!</p>
+              </div>
+            }
+            // FIXED: Add scrollThreshold to trigger loading earlier
+            scrollThreshold={0.8}
+          >
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {displayedProducts.map((product) => (
+                <ProductCard key={product.id} product={product} onShowRecommendations={openModal} />
+              ))}
+            </div>
+          </InfiniteScroll>
+        )
       )}
 
       {(!displayedProducts || displayedProducts.length === 0) &&
@@ -295,6 +354,15 @@ function ProductGridContent() {
             </p>
           </div>
         )}
+      
+      {/* Recommendations Modal */}
+      {selectedProduct && (
+        <RecommendationsModal
+          product={selectedProduct}
+          isOpen={isOpen}
+          onClose={closeModal}
+        />
+      )}
     </div>
   );
 }
